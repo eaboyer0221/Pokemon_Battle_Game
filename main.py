@@ -13,11 +13,13 @@ def pokedex(url = 'https://pokemondb.net/pokedex/all'):
     headers = []
     for th in table.find('thead').find_all('th'):
         headers.append(th.text.strip())
+    headers.append('image_url')
     rows = []
     for tr in table.find('tbody').find_all('tr'):
         row = []
         for td in tr.find_all('td'):
             row.append(td.text.strip())
+        row.append(tr.find("img")['src'])
         rows.append(row)
     return pd.DataFrame(rows, columns=headers)
 

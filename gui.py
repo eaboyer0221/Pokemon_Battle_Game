@@ -57,6 +57,8 @@ class PokemonGame:
 
         # Shows -All- as a default value
         self.type_selection.current(0)
+        # Adding trace to the combobox
+        self.n.trace('w', lambda *args: self.filter_table())
 
         # Search box for Pokemon
 

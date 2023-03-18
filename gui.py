@@ -15,10 +15,9 @@ class PokemonGame:
         self.df = self.pokedex()
         # main window of game
         self.root = tk.Tk()
-        self.root.title("Pokemon Battle")
+        self.root.title("Pokedex")
 
         ##### Middle Pokedex Section #######
-        # Enter specific information for your profile into the following widgets
         self.pokemon_selection = Label(self.root, text="Pokemon Selection", bg="lightgrey")
         self.pokemon_selection.grid(row=0, column=1, columnspan=4, padx=5, pady=5)
 
@@ -61,7 +60,6 @@ class PokemonGame:
         self.n.trace('w', lambda *args: self.filter_table())
 
         # Search box for Pokemon
-
         ttk.Label(self.root, text="Name:",
                   font=("Times New Roman", 10)).grid(column=3,
                                                      row=1, padx=10, pady=2)
@@ -71,7 +69,6 @@ class PokemonGame:
         self.name_text.trace('w', lambda *args: self.filter_table())
 
         ###Pokedex Table###
-
         # create a frame for the pokedex table with a horizontal scrollbar
         self.table_frame = tk.Frame(self.root)
         self.table_frame.grid(row=2, column=1, columnspan=4, rowspan=2, padx=1, pady=1)
@@ -98,8 +95,8 @@ class PokemonGame:
         self.table_frame.grid_columnconfigure(0, weight=1, pad=0)
         self.filter_table()
 
-        # Battle Button
-        Button(self.root, text="Battle").grid(row=4, column=1, columnspan=3)
+        # Select Button
+        Button(self.root, text="Select", command=lambda: self.show_pokemon_info()).grid(row=4, column=1, columnspan=3)
 
         self.root.mainloop()
 
@@ -123,6 +120,7 @@ class PokemonGame:
         df = df.rename(columns={'#':'Number', 'Sp. Atk':'Special_Attack', 'Sp. Def':'Special_Defense'})
         return df
 
+
     #create function to filter pokedex table based on search
     def filter_table(self):
         selected_type = self.type_selection.get()
@@ -139,14 +137,47 @@ class PokemonGame:
 
         #search_df = self.df[self.df['Name'].str.startswith(search_text, na=False)]
         self.tree.delete(*self.tree.get_children())
-        #for i, row in filtered_df.iterrows():
-            #self.tree.insert('', 'end', values=tuple(row))
-        #for i, row in filtered_df[filtered_df['Name'].str.startswith(search_text, na=False)].iterrows():
-         #   self.tree.insert('', 'end', values=tuple(row))
+
         for i, row in pd.merge(filtered_df, search_df, how='inner', on=['Number']).iterrows():
             self.tree.insert('', 'end',values=tuple(row))
-    #add the rows to the Treeview widget
+    def show_pokemon_info(self):
+        # Get the selected Pokemon from the Treeview widget
+        selection = self.tree.selection()
+        if selection:
+            item = self.tree.item(selection[0])  # Get the first selected item
+            values = item['values']  # Get the values of the selected item
+            pokemon = self.df.loc[self.df['Name'] == values[1]]  # Get the row of the selected Pokemon from the dataframe
 
+            # Create a new window to display the Pokemon info
+            info_window = tk.Toplevel(self.root)
+            info_window.title("Pokemon Info")
+
+            # Add labels and values to display the Pokemon info
+            tk.Label(info_window, text="Name:").grid(row=0, column=0)
+            tk.Label(info_window, text=pokemon['Name'].values[0]).grid(row=0, column=1)
+            tk.Label(info_window, text="Type:").grid(row=1, column=0)
+            tk.Label(info_window, text=pokemon['Type'].values[0]).grid(row=1, column=1)
+            tk.Label(info_window, text="HP:").grid(row=2, column=0)
+            tk.Label(info_window, text=pokemon['HP'].values[0]).grid(row=2, column=1)
+            tk.Label(info_window, text="Attack:").grid(row=3, column=0)
+            tk.Label(info_window, text=pokemon['Attack'].values[0]).grid(row=3, column=1)
+            tk.Label(info_window, text="Defense:").grid(row=4, column=0)
+            tk.Label(info_window, text=pokemon['Defense'].values[0]).grid(row=4, column=1)
+
+            # Add an image of the Pokemon to the window
+            response = requests.get(pokemon['image_url'].values[0])
+            img = Image.open(io.BytesIO(response.content))
+            img = img.resize((100, 100))
+            img = ImageTk.PhotoImage(img)
+            img_label = tk.Label(info_window, image=img)
+            img_label.image = img
+            img_label.grid(row=0, column=2, rowspan=5, padx=10)
+
+            # Make the window stay open until the user closes it
+            info_window.mainloop()
+        else:
+            # If no Pokemon is selected, show an error message
+            tk.messagebox.showerror("Error", "Please select a Pokemon from the table.")
 
 
 if __name__ == "__main__":

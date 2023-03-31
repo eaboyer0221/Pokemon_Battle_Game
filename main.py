@@ -40,9 +40,9 @@ class Pokemon:
 
         self.name = pokemon_data['Name'].values[0]
         self.pokemon_type = pokemon_data['Type'].values[0]
-        self.life_points = pokemon_data['HP'].values[0]
-        self.hit_power = pokemon_data['Attack'].values[0]
-        self.defense = pokemon_data['Defense'].values[0]
+        self.life_points = int(pokemon_data['HP'].values[0])
+        self.hit_power = int(pokemon_data['Attack'].values[0])
+        self.defense = int(pokemon_data['Defense'].values[0])
         self.image_url = pokemon_data['image_url'].values[0]
         self.is_legendary = False
 
@@ -51,33 +51,28 @@ class Pokemon:
         messagebox.showinfo("Battle", f"{self.name} says hello! {self.name} has {self.hit_power} hit power and {self.life_points} life points.")
 
     # "attack" method that reduces the enemy's life point by the attacking pokemon's hit power, and prints out the enemy's life point after attack.
-    def attack(self, enemy):
-        enemy.life_points = max(enemy.life_points - self.hit_power, 0)
-        return enemy.life_points
 
 
-def handle_attack_click(player_pokemon, enemy_pokemon):
-    enemy_life_points = player_pokemon.attack(enemy_pokemon)
-    if enemy_life_points <= 0:
-        print(f"{enemy_pokemon.name} fainted. {player_pokemon.name} won the battle!")
-    else:
-        enemy_pokemon.attack(player_pokemon)
-        if player_pokemon.life_points <= 0:
-            print(f"{player_pokemon.name} fainted. {enemy_pokemon.name} won the battle!")
-        # print(f"{self.name} attacks!")
-        # print(f"{enemy.name} loses life power!")
-        # print(f"{enemy.name} life power is {enemy.life_points}!")
+def handle_attack_click(player_pokemon, other_player):
+    is_alive = player_pokemon.attack(other_player)
+    if not is_alive:
+        messagebox.showinfo("Victory", f"{other_player.pokemon.name} fainted. {player_pokemon.name} won the battle!")
+        return
+    is_alive = other_player.pokemon.attack(player_pokemon.pokemon)
+    if not is_alive:
+        messagebox.showinfo("You Lost", f"{player_pokemon.name} fainted. {other_player.pokemon.name} won the battle!")
+
 
         # let the player's Pokemon attack the enemy Pokemon until one of them loses the game
-        while player_pokemon.life_points > 0 and enemy_pokemon.life_points > 0:
-            player_pokemon.attack(enemy_pokemon)
-            if enemy_pokemon.life_points <= 0:
-                print(f"{enemy_pokemon.name} fainted. {player_pokemon.name} won the battle!")
-                break
-            enemy_pokemon.attack(player_pokemon)
-            if player_pokemon.life_points <= 0:
-                print(f"{player_pokemon.name} fainted. {enemy_pokemon.name} won the battle!")
-            break
+        # while player_pokemon.life_points > 0 and enemy_pokemon.life_points > 0:
+        #     player_pokemon.attack(enemy_pokemon)
+        #     if enemy_pokemon.life_points <= 0:
+        #         print(f"{enemy_pokemon.name} fainted. {player_pokemon.name} won the battle!")
+        #         break
+        #     enemy_pokemon.attack(player_pokemon)
+        #     if player_pokemon.life_points <= 0:
+        #         print(f"{player_pokemon.name} fainted. {enemy_pokemon.name} won the battle!")
+        #     break
 
 
 class Legendary(Pokemon):
@@ -134,6 +129,3 @@ def display_pokemon(player_type, player, root):
     return info_window
 
 
-if __name__ == "__main__":
-    # create the player's Pokemon
-    print("Welcome to the Pokemon battle!")

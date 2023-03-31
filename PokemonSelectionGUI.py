@@ -21,6 +21,12 @@ class Player:
         self.name = name
         self.pokemon = pokemon
         self.frame = None
+    def attack(self, other_player):
+        other_player.pokemon.life_points = max(other_player.pokemon.life_points - self.pokemon.hit_power, 0)
+        messagebox.showinfo("Attack!", f"{self.pokemon.name} attacks!")
+        messagebox.showinfo("Life Power Lost!", f"{other_player.pokemon.name} loses life power!")
+        messagebox.showinfo("Life Power", f"{other_player.pokemon.name} life power is {other_player.pokemon.life_points}!")
+        return other_player.pokemon.lifepoints > 0
 
 
 class PokemonGame:
@@ -258,3 +264,4 @@ class PokemonGame:
 
 if __name__ == "__main__":
     PokemonGame()
+
